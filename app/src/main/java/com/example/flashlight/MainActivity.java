@@ -1,5 +1,8 @@
 package com.example.flashlight;
 
+import android.app.DownloadManager;
+import android.app.VoiceInteractor;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
+import android.net.wifi.WifiManager;
 
 import java.security.Permission;
 
@@ -25,12 +29,16 @@ public class MainActivity extends AppCompatActivity {
  SeekBar seekbar;
  boolean success;
  Switch aSwitch;
+ Switch blue;
+ Switch wif;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         seekbar = (SeekBar)findViewById(R.id.seekBar);
         aSwitch = (Switch)findViewById(R.id.torch);
+        blue = (Switch)findViewById(R.id.bluetooth);
+        wif = (Switch)findViewById(R.id.wifi1);
         seekbar.setMax(255);
         seekbar.setProgress(getBrightness());
         getPermission();
@@ -83,6 +91,40 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+        });
+        blue.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                if(isChecked){
+
+                    if (bluetoothAdapter == null) {
+                        Toast.makeText(MainActivity.this, "Bluetooth is not supported!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (!bluetoothAdapter.isEnabled()) {
+                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(enableBtIntent, RESULT_OK);
+                    }
+
+                }else {
+                    bluetoothAdapter.disable();
+
+                    }
+
+            }
+        });
+        wif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    WifiManager wifi1 = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                    wifi1.setWifiEnabled(true);
+                }else{
+                    WifiManager wifi11 = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                    wifi11.setWifiEnabled(false);
+                }
+            }
         });
         }
     private void setBrightness(int brightness){
